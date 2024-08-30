@@ -59,14 +59,18 @@ func (h *DoTo2) DeviceServiceInfo68(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Collect any device service info into the full list of SIMs sent over the
+	// session, regardless of whether IsMoreServiceInfo=true (aka including the
+	// final service infos sent by the device before the owner responds with
+	// service info).
+	session.DeviceSIMs = append(session.DeviceSIMs, deviceServiceInfo.ServiceInfo...)
+
 	ownerServiceInfo := fdoshared.OwnerServiceInfo69{}
 
 	if deviceServiceInfo.IsMoreServiceInfo {
 		// Device keeps sending more service info
 		ownerServiceInfo.IsDone = false
 		ownerServiceInfo.IsMoreServiceInfo = false
-
-		session.DeviceSIMs = append(session.DeviceSIMs, deviceServiceInfo.ServiceInfo...)
 	} else {
 		// Owner is now sending its service info
 		if session.OwnerSIMsSendCounter == 0 {
